@@ -1,8 +1,8 @@
-# AuraSearch
+# ZynSearch
 
 > A lightweight local search engine written in Rust for indexing and querying plain text and Markdown files.
 
-AuraSearch is a small but expressive document search engine that walks a directory tree, extracts text from supported files, tokenizes content, builds an in-memory inverted index, and lets you run interactive searches from the terminal.
+ZynSearch is a small but expressive document search engine that walks a directory tree, extracts text from supported files, tokenizes content, builds an in-memory inverted index, and lets you run interactive searches from the terminal.
 
 It is intentionally simple in architecture, which makes it a great project for learning:
 
@@ -17,7 +17,7 @@ The codebase is compact, but the design is clear enough to grow into a richer se
 
 ## Table Of Contents
 
-- [What AuraSearch Does](#what-aurasearch-does)
+- [What ZynSearch Does](#what-ZynSearch-does)
 - [Project Highlights](#project-highlights)
 - [Architecture Overview](#architecture-overview)
 - [How It Works](#how-it-works)
@@ -32,9 +32,9 @@ The codebase is compact, but the design is clear enough to grow into a richer se
 - [Known Limitations](#known-limitations)
 - [Future Ideas](#future-ideas)
 
-## What AuraSearch Does
+## What ZynSearch Does
 
-AuraSearch scans the current directory recursively, finds files with allowed extensions, reads their contents, converts Markdown or plain text into searchable text, analyzes the text into tokens, and stores those tokens in an inverted index.
+ZynSearch scans the current directory recursively, finds files with allowed extensions, reads their contents, converts Markdown or plain text into searchable text, analyzes the text into tokens, and stores those tokens in an inverted index.
 
 At query time, it accepts a search string from standard input, tokenizes the query using the same analyzer, and returns documents that contain all query terms.
 
@@ -57,7 +57,7 @@ In simple terms:
 
 ## Architecture Overview
 
-AuraSearch is organized around a few core components:
+ZynSearch is organized around a few core components:
 
 - `DirectoryCrawler` finds files to ingest
 - `DocumentParser` cleans raw file content
@@ -142,7 +142,7 @@ When a document is ingested:
 
 `src/searcher.rs` performs AND-style search over the query tokens.
 
-If a query contains multiple terms, AuraSearch returns only documents that contain every term after analysis.
+If a query contains multiple terms, ZynSearch returns only documents that contain every term after analysis.
 
 That means the query:
 
@@ -187,7 +187,7 @@ let allowed_extensions = vec!["txt".to_string(), "md".to_string()];
 
 ## Tokenization And Search Rules
 
-AuraSearch currently follows a fairly strict, predictable text model.
+ZynSearch currently follows a fairly strict, predictable text model.
 
 ### Analyzer rules
 
@@ -251,7 +251,7 @@ Important note:
 ├── readme.md
 ├── index.html
 ├── docs/
-│   └── AuraSearch PRD.pdf
+│   └── ZynSearch PRD.pdf
 ├── src/
 │   ├── analyzer.rs
 │   ├── crawler.rs
@@ -383,7 +383,7 @@ The crawler handles recursive discovery of files with allowed extensions.
 
 ## Known Limitations
 
-AuraSearch is intentionally minimal, so a few limitations are worth noting:
+ZynSearch is intentionally minimal, so a few limitations are worth noting:
 
 - search currently behaves like strict AND matching
 - scoring/ranking is not implemented
@@ -394,7 +394,7 @@ AuraSearch is intentionally minimal, so a few limitations are worth noting:
 
 ## Future Ideas
 
-If you want to grow AuraSearch, good next steps would be:
+If you want to grow ZynSearch, good next steps would be:
 
 - add OR and phrase search
 - add ranking with TF-IDF or BM25
