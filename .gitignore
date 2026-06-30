@@ -5,3 +5,6 @@
 index.bin
 .directory
 .vscode/settings.json
+
+node_modules/
+dist/

@@ -1,0 +1,14 @@
+{
+    "name": "@zynsearch/js-sdk",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "Blazing fast, strongly-typed ESM client for ZynSearch",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "scripts": {
+        "build": "tsc"
+    },
+    "devDependencies": {
+        "typescript": "^6.0.3"
+    }
+}

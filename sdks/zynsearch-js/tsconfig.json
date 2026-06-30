@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", // Use modern JavaScript features
+    "module": "NodeNext", // Enable modern ES Modules (import/export)
+    "moduleResolution": "NodeNext", // Help TypeScript find files properly
+    "declaration": true, // Automatically generate .d.ts safety files for users
+    "outDir": "./dist", // Put the finished, compiled JavaScript into a folder called 'dist'
+    "rootDir": "./src", // Look for our source code inside the 'src' folder
+    "strict": true, // Enable maximum safety settings
+    "skipLibCheck": true // Make compiling faster by skipping internal tool checks
+  },
+  "include": ["src/**/*"] // Compile everything inside the src folder
+}
