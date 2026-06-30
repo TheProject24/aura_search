@@ -1,0 +1,14 @@
+{
+  "host": "127.0.0.1",
+  "port": 7777,
+  "db_path": "index.bin",
+  "corpus_dir": "./test_corpus",
+  "query": null,
+  "output_format": "text",
+  "protocol": "tcp",
+  "ingestion": "localdir",
+  "env_path": null,
+  "config_path": "zynsearch.config.json",
+  "s3_bucket": null,
+  "s3_prefix": null
+}

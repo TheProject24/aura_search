@@ -26,5 +26,6 @@ pub mod layout;
 pub mod wal;
 pub mod bitmap;
 pub mod config;
+pub mod ingestion;
 pub mod query_pipeline;
 pub mod document_ingest;

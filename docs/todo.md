@@ -63,7 +63,7 @@ To handle production traffic at scale, the single node should support network pr
 //TODO!
 - [x] Implement data partitioning (sharding): distribute document indices across independent cluster instances by hashing incoming source ID values.
 //TODO!
-- [x] Construct a scatter-gather query coordinator: route incoming queries across multiple search nodes simultaneously and combine the results into a unified sorted response list.
+- [ ] Construct a scatter-gather query coordinator: route incoming queries across multiple search nodes simultaneously and combine the results into a unified sorted response list.
 
 
 ## Phase 6: Plug-and-Play Distribution Layer
