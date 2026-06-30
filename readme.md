@@ -28,6 +28,7 @@ The codebase is compact, but the design is clear enough to grow into a richer se
 - [Getting Started](#getting-started)
 - [Usage](#usage)
 - [Examples](#examples)
+- [gRPC API](#grpc-api)
 - [Implementation Notes](#implementation-notes)
 - [Known Limitations](#known-limitations)
 - [Future Ideas](#future-ideas)
@@ -249,22 +250,21 @@ Important note:
 .
 ├── Cargo.toml
 ├── readme.md
-├── index.html
+├── zynsearch.config.json
+├── proto/
+│   ├── buf.yaml              # Buf module descriptor (lint + breaking rules)
+│   ├── buf.gen.yaml          # Codegen plugin config (Go, Python, TS, Java, C#, …)
+│   ├── README.md             # How to generate a client in any language
+│   └── zynsearch/
+│       └── v1/
+│           └── zynsearch.proto
+├── crates/
+│   ├── zynsearch-core/       # Pure engine — embeddable as a Rust library
+│   ├── zynsearch-server/     # gRPC + TCP server binary
+│   └── zynsearch-cli/        # Thin CLI shell over core
 ├── docs/
-│   └── ZynSearch PRD.pdf
-├── src/
-│   ├── analyzer.rs
-│   ├── crawler.rs
-│   ├── engine.rs
-│   ├── index.rs
-│   ├── main.rs
-│   ├── parser.rs
-│   ├── searcher.rs
-│   └── storage.rs
+│   └── todo.md
 └── test_corpus/
-    ├── doc1.txt
-    ├── doc2.md
-    └── doc3.txt
 ```
 
 ## Getting Started
@@ -313,6 +313,37 @@ Type `exit` or `quit` to leave the prompt.
 3. Wait for indexing to complete.
 4. Enter search terms at the prompt.
 5. Review the matching file paths.
+
+## gRPC API
+
+ZynSearch ships a first-class gRPC interface. The canonical `.proto` file lives at
+`proto/zynsearch/v1/zynsearch.proto` and can be used to generate a fully-typed client
+in any language without running a ZynSearch binary.
+
+### RPCs
+
+| RPC            | Type                 | Description                                           |
+| -------------- | -------------------- | ----------------------------------------------------- |
+| `Index`        | unary                | Index a single document                               |
+| `Search`       | unary                | Query the index, receive all hits at once             |
+| `Delete`       | unary                | Remove a document by numeric ID or source path        |
+| `BulkIndex`    | **client streaming** | Stream many documents over one persistent connection  |
+| `SearchStream` | **server streaming** | Receive scored results incrementally as shards finish |
+
+### Generating a client
+
+The quickest path is the [Buf CLI](https://buf.build):
+
+```bash
+# Install Buf once
+brew install bufbuild/buf/buf   # macOS / Linux
+
+# Generate stubs for all languages defined in buf.gen.yaml
+cd proto && buf generate
+```
+
+Raw `protoc` commands, language-specific options, and a Rust `build.rs` snippet are all
+documented in [`proto/README.md`](proto/README.md).
 
 ## Examples
 
@@ -408,4 +439,3 @@ If you want to grow ZynSearch, good next steps would be:
 ## License
 
 No license file is currently present in the repository. If you plan to share or publish the project, add one to make usage terms clear.
-

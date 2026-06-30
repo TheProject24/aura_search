@@ -1,0 +1,80 @@
+version: v2
+
+plugins:
+  # ── Go ──────────────────────────────────────────────────────────────────────
+  - remote: buf.build/protocolbuffers/go
+    out: gen/go
+    opt:
+      - paths=source_relative
+
+  - remote: buf.build/grpc/go
+    out: gen/go
+    opt:
+      - paths=source_relative
+      - require_unimplemented_servers=false
+
+  # ── Python ──────────────────────────────────────────────────────────────────
+  - remote: buf.build/protocolbuffers/python
+    out: gen/python
+
+  - remote: buf.build/grpc/python
+    out: gen/python
+
+  # ── JavaScript / TypeScript ─────────────────────────────────────────────────
+  - remote: buf.build/protocolbuffers/js
+    out: gen/js
+    opt:
+      - import_style=commonjs
+
+  - remote: buf.build/grpc/node
+    out: gen/js
+    opt:
+      - grpc_js
+
+  # ── TypeScript types via ts-proto ──────────────────────────────────────────
+  - remote: buf.build/community/stephenh-ts-proto
+    out: gen/ts
+    opt:
+      - esModuleInterop=true
+      - outputServices=grpc-js
+
+  # ── Java ────────────────────────────────────────────────────────────────────
+  - remote: buf.build/protocolbuffers/java
+    out: gen/java
+
+  - remote: buf.build/grpc/java
+    out: gen/java
+
+  # ── Kotlin ──────────────────────────────────────────────────────────────────
+  - remote: buf.build/protocolbuffers/kotlin
+    out: gen/kotlin
+
+  # ── C# ──────────────────────────────────────────────────────────────────────
+  - remote: buf.build/protocolbuffers/csharp
+    out: gen/csharp
+
+  - remote: buf.build/grpc/csharp
+    out: gen/csharp
+
+  # ── Ruby ────────────────────────────────────────────────────────────────────
+  - remote: buf.build/protocolbuffers/ruby
+    out: gen/ruby
+
+  - remote: buf.build/grpc/ruby
+    out: gen/ruby
+
+  # ── PHP ─────────────────────────────────────────────────────────────────────
+  - remote: buf.build/protocolbuffers/php
+    out: gen/php
+
+  - remote: buf.build/grpc/php
+    out: gen/php
+
+  # ── Rust (tonic / prost) ────────────────────────────────────────────────────
+  - remote: buf.build/community/neoeinstein-prost
+    out: gen/rust
+
+  - remote: buf.build/community/neoeinstein-tonic
+    out: gen/rust
+    opt:
+      - no_include

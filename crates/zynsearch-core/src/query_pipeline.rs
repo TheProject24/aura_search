@@ -44,6 +44,30 @@ impl QueryCoordinator {
 
         collector.into_sorted_vec()
     }
+
+    pub fn execute_streaming(&self, query: ZynQuery) -> mpsc::Receiver<SearchResult> {
+        let (tx, rx) = mpsc::channel();
+
+        for shard_id in 0..self.shard_count {
+            let tx_clone = tx.clone();
+            let engine_clone = Arc::clone(&self.engine);
+            let query_clone = query.query_string.clone();
+            let limit = query.limit as usize;
+            let shard_count = self.shard_count;
+
+            thread::spawn(move || {
+                let shard_results = engine_clone.execute_search_for_shard(&query_clone, shard_id, shard_count, limit);
+                for result in shard_results {
+                    if tx_clone.send(result).is_err() {
+                        break;
+                    }
+                }
+            });
+        }
+
+        drop(tx);
+        rx
+    }
 }
 
 pub fn parse_query(payload: &[u8]) -> Result<ZynQuery, String> {

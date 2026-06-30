@@ -8,4 +8,10 @@ tokio = { version = "1.32", features = ["full"] }
 clap = { version = "4.4", features = ["derive", "env"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+prost = "0.13"
+tokio-stream = { version = "0.1", features = ["sync"] }
+tonic = "0.12"
 zynsearch-core = { path = "../zynsearch-core" }
+
+[build-dependencies]
+tonic-build = "0.12"
