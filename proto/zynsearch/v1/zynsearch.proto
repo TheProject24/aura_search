@@ -1,0 +1,138 @@
+syntax = "proto3";
+
+package zynsearch.v1;
+
+option csharp_namespace = "ZynSearch.V1";
+option go_package = "github.com/knny/ZynSearch/gen/zynsearch/v1;zynsearchv1";
+option java_multiple_files = true;
+option java_package = "com.zynsearch.v1";
+option php_namespace = "ZynSearch\\V1";
+option ruby_package = "ZynSearch::V1";
+
+service ZynSearchService {
+  rpc Index(IndexRequest) returns (IndexResponse);
+  rpc Search(SearchRequest) returns (SearchResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+  rpc BulkIndex(stream BulkIndexRequest) returns (BulkIndexResponse);
+  rpc SearchStream(SearchRequest) returns (stream SearchStreamResponse);
+}
+
+message Document {
+  string source_id = 1;
+  string content = 2;
+  map<string, string> metadata = 3;
+  DocumentSourceKind source_kind = 4;
+}
+
+message IndexRequest {
+  Document document = 1;
+  IndexOptions options = 2;
+}
+
+message IndexResponse {
+  uint64 document_id = 1;
+  string source_id = 2;
+  IndexStatus status = 3;
+}
+
+message SearchRequest {
+  string query = 1;
+  uint32 limit = 2;
+  bool explain = 3;
+  SearchOptions options = 4;
+}
+
+message SearchResult {
+  uint64 document_id = 1;
+  string source_id = 2;
+  DocumentSourceKind source_kind = 3;
+  string title = 4;
+  float score = 5;
+  repeated string matched_terms = 6;
+  map<string, string> metadata = 7;
+  string explanation = 8;
+}
+
+message SearchStats {
+  uint32 total_hits = 1;
+  bool truncated = 2;
+  uint64 elapsed_millis = 3;
+}
+
+message SearchResponse {
+  repeated SearchResult results = 1;
+  SearchStats stats = 2;
+}
+
+message SearchStreamResponse {
+  oneof payload {
+    SearchResult result = 1;
+    SearchStats stats = 2;
+  }
+}
+
+message DeleteRequest {
+  oneof target {
+    uint64 document_id = 1;
+    string source_id = 2;
+  }
+  bool delete_from_storage = 3;
+}
+
+message DeleteResponse {
+  DeleteStatus status = 1;
+  uint64 document_id = 2;
+  string source_id = 3;
+}
+
+message BulkIndexRequest {
+  Document document = 1;
+  IndexOptions options = 2;
+}
+
+message BulkIndexResponse {
+  uint32 indexed_count = 1;
+  repeated BulkIndexItemResult results = 2;
+}
+
+message BulkIndexItemResult {
+  uint64 document_id = 1;
+  string source_id = 2;
+  IndexStatus status = 3;
+  Error error = 4;
+}
+
+message IndexOptions {
+  bool replace_existing = 1;
+}
+
+message SearchOptions {
+  bool include_metadata = 1;
+  bool include_content_snippets = 2;
+}
+
+message Error {
+  string code = 1;
+  string message = 2;
+  map<string, string> details = 3;
+}
+
+enum DocumentSourceKind {
+  DOCUMENT_SOURCE_KIND_UNSPECIFIED = 0;
+  DOCUMENT_SOURCE_KIND_OPAQUE = 1;
+  DOCUMENT_SOURCE_KIND_FILESYSTEM = 2;
+  DOCUMENT_SOURCE_KIND_S3_OBJECT = 3;
+}
+
+enum IndexStatus {
+  INDEX_STATUS_UNSPECIFIED = 0;
+  INDEX_STATUS_CREATED = 1;
+  INDEX_STATUS_REPLACED = 2;
+  INDEX_STATUS_SKIPPED = 3;
+}
+
+enum DeleteStatus {
+  DELETE_STATUS_UNSPECIFIED = 0;
+  DELETE_STATUS_DELETED = 1;
+  DELETE_STATUS_NOT_FOUND = 2;
+}
