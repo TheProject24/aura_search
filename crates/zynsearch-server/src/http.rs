@@ -82,9 +82,11 @@ pub struct SearchResponseBody {
 
 #[derive(Debug, Serialize)]
 pub struct SearchResultBody {
+    pub rank: u32,
     pub document_id: u64,
+    pub doc_id: u64,
     pub source_id: String,
-    pub title: String,
+    pub filename: String,
     pub score: f32,
     pub explanation: Option<String>,
 }
@@ -267,8 +269,8 @@ async fn search_documents(
     });
 
     let mut converted = Vec::new();
-    for result in results.into_iter().take(limit) {
-        let Some(result) = convert_search_result(&state, result, explain) else {
+    for (rank, result) in results.into_iter().take(limit).enumerate() {
+        let Some(result) = convert_search_result(&state, rank, result, explain) else {
             continue;
         };
         converted.push(result);
@@ -329,6 +331,7 @@ async fn delete_document(
 
 fn convert_search_result(
     state: &HttpServerState,
+    rank: usize,
     result: CoreSearchResult,
     explain: bool,
 ) -> Option<SearchResultBody> {
@@ -343,9 +346,11 @@ fn convert_search_result(
         .to_string();
 
     Some(SearchResultBody {
+        rank: (rank + 1) as u32,
         document_id: doc_id as u64,
+        doc_id: doc_id as u64,
         source_id: metadata.source_id.clone(),
-        title,
+        filename: title,
         score: result.score,
         explanation: explain.then(|| format!("bm25_score={}", result.score)),
     })

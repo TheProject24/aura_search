@@ -52,12 +52,22 @@ impl IngestionSource for LocalDirIngestionSource {
         let mut documents = Vec::new();
 
         for path_buf in crawler.run() {
-            let body = document_ingest::normalize_for_indexing(&path_buf)?;
-            documents.push(IngestionDocument {
-                source_id: path_buf.to_string_lossy().into_owned(),
-                source_kind: DocumentSourceKind::Filesystem,
-                body,
-            });
+            match document_ingest::normalize_for_indexing(&path_buf) {
+                Ok(body) => {
+                    documents.push(IngestionDocument {
+                        source_id: path_buf.to_string_lossy().into_owned(),
+                        source_kind: DocumentSourceKind::Filesystem,
+                        body,
+                    });
+                }
+                Err(err) => {
+                    eprintln!(
+                        "Warning: Skipped unreadable document {}, Reason: {}",
+                        path_buf.display(),
+                        err
+                    );
+                }
+            }
         }
 
         Ok(documents)
@@ -134,13 +144,20 @@ impl IngestionSource for S3IngestionSource {
                     "xlsx" => document_ingest::normalize_for_xlsx_bytes(&content),
                     "pdf" => document_ingest::normalize_for_pdf_bytes(&content),
                     _ => Err(format!("Unsupported S3 object format: {key}")),
-                }?;
+                };
 
-                documents.push(IngestionDocument {
-                    source_id: key,
-                    source_kind: DocumentSourceKind::S3Object,
-                    body,
-                });
+                match body {
+                    Ok(body) => {
+                        documents.push(IngestionDocument {
+                            source_id: key,
+                            source_kind: DocumentSourceKind::S3Object,
+                            body,
+                        });
+                    }
+                    Err(err) => {
+                        eprintln!("Warning: Skipped unreadable S3 object {}, Reason: {}", key, err);
+                    }
+                }
             }
 
             Ok::<_, String>(documents)

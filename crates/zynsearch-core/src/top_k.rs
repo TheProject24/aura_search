@@ -3,10 +3,11 @@ use std::collections::BinaryHeap;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SearchResult {
     pub score: f32,
     pub doc_id: u32,
+    pub source_id: Option<String>,
 }
 
 impl PartialEq for SearchResult {
@@ -41,8 +42,8 @@ impl TopKCollector {
         TopKCollector { capacity, min_heap: BinaryHeap::with_capacity(capacity) }
     }
 
-    pub fn collect(&mut self, doc_id: u32, score: f32) {
-        let new_ticket = SearchResult { score, doc_id };
+    pub fn collect(&mut self, doc_id: u32, score: f32, source_id: Option<String>) {
+        let new_ticket = SearchResult { score, doc_id, source_id };
 
         if self.min_heap.len() < self.capacity {
             self.min_heap.push(Reverse(new_ticket));
@@ -77,12 +78,12 @@ mod tests {
     fn test_top_k_collector() {
         let mut bouncer = TopKCollector::new(3);
 
-        bouncer.collect(1, 15.0);
-        bouncer.collect(2, 5.0);
-        bouncer.collect(3, 42.0);
-        bouncer.collect(4, 8.0);
-        bouncer.collect(5, 30.0);
-        bouncer.collect(6, 2.0);
+        bouncer.collect(1, 15.0, None);
+        bouncer.collect(2, 5.0, None);
+        bouncer.collect(3, 42.0, None);
+        bouncer.collect(4, 8.0, None);
+        bouncer.collect(5, 30.0, None);
+        bouncer.collect(6, 2.0, None);
 
         let winners = bouncer.into_sorted_vec();
 

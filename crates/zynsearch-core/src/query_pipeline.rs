@@ -2,6 +2,7 @@ use crate::config::OutputFormat;
 use crate::multi_protocol::{ProtocolParser, ZynQuery};
 use crate::top_k::{SearchResult, TopKCollector};
 use crate::engine::SearchEngineCore;
+use std::path::Path;
 use std::collections::HashMap;
 use std::sync::{mpsc, Arc};
 use std::thread;
@@ -38,7 +39,7 @@ impl QueryCoordinator {
         let mut collector = TopKCollector::new(query.limit as usize);
         for shard_results in rx {
             for result in shard_results {
-                collector.collect(result.doc_id, result.score);
+                collector.collect(result.doc_id, result.score, result.source_id);
             }
         }
 
@@ -78,15 +79,42 @@ pub fn format_results(results: &[SearchResult], format: OutputFormat) -> Vec<u8>
     match format {
         OutputFormat::Text => {
             let mut text = format!("Found {} matches:\n", results.len());
-            for result in results {
-                text.push_str(&format!(" -> doc {} (score {:.3})\n", result.doc_id, result.score));
+            for (index, result) in results.iter().enumerate() {
+                let label = result
+                    .source_id
+                    .as_deref()
+                    .and_then(|source_id| Path::new(source_id).file_name().and_then(|name| name.to_str()))
+                    .map(|name| name.to_string())
+                    .unwrap_or_else(|| format!("doc {}", result.doc_id));
+                text.push_str(&format!(
+                    " -> rank {} | {} | score {:.3} | doc_id {}\n",
+                    index + 1,
+                    label,
+                    result.score,
+                    result.doc_id
+                ));
             }
             text.into_bytes()
         }
         OutputFormat::Json => {
             let payload = results
                 .iter()
-                .map(|result| serde_json::json!({ "doc_id": result.doc_id, "score": result.score }))
+                .enumerate()
+                .map(|(index, result)| {
+                    let filename = result
+                        .source_id
+                        .as_deref()
+                        .and_then(|source_id| Path::new(source_id).file_name().and_then(|name| name.to_str()))
+                        .unwrap_or("")
+                        .to_string();
+
+                    serde_json::json!({
+                        "rank": index + 1,
+                        "filename": filename,
+                        "doc_id": result.doc_id,
+                        "score": result.score
+                    })
+                }))
                 .collect::<Vec<_>>();
             serde_json::to_vec(&payload).unwrap_or_default()
         }

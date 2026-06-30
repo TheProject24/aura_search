@@ -324,7 +324,8 @@ impl ZynGrpcService {
 
         let converted = results
             .iter()
-            .filter_map(|result| self.convert_search_result(*result, request.explain))
+            .enumerate()
+            .filter_map(|(rank, result)| self.convert_search_result(rank, *result, request.explain))
             .collect::<Vec<_>>();
 
         let stats = SearchStats {
@@ -336,21 +337,25 @@ impl ZynGrpcService {
         Ok((converted, stats))
     }
 
-    fn convert_search_result(&self, result: CoreSearchResult, explain: bool) -> Option<SearchResult> {
+    fn convert_search_result(&self, rank: usize, result: CoreSearchResult, explain: bool) -> Option<SearchResult> {
         let index = self.engine_core.index.read().ok()?;
         let doc_id = result.doc_id as usize;
         let metadata = index.document_metadata.get(&doc_id)?;
         let source_kind = core_source_kind_to_proto(metadata.source_kind);
+        let filename = Path::new(&metadata.source_id)
+            .file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or(&metadata.source_id)
+            .to_string();
 
         Some(SearchResult {
             document_id: result.doc_id as u64,
+            doc_id: result.doc_id as u64,
             source_id: metadata.source_id.clone(),
             source_kind: source_kind as i32,
-            title: Path::new(&metadata.source_id)
-                .file_name()
-                .and_then(|name| name.to_str())
-                .unwrap_or(&metadata.source_id)
-                .to_string(),
+            title: filename.clone(),
+            filename,
+            rank: (rank + 1) as u32,
             score: result.score,
             matched_terms: Vec::new(),
             metadata: std::collections::HashMap::new(),

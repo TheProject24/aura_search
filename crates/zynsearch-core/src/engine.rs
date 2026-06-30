@@ -165,10 +165,20 @@ impl SearchEngineCore {
         let mut indexed = Vec::new();
 
         for path_buf in crawler.run() {
-            let normalized = document_ingest::normalize_for_indexing(&path_buf)?;
-            let path_str = path_buf.to_string_lossy().into_owned();
-            self.ingest_document(&path_str, DocumentSourceKind::Filesystem, self.analyzer.analyze(&normalized));
-            indexed.push(path_str);
+            match document_ingest::normalize_for_indexing(&path_buf) {
+                Ok(normalized) => {
+                    let path_str = path_buf.to_string_lossy().into_owned();
+                    self.ingest_document(&path_str, DocumentSourceKind::Filesystem, self.analyzer.analyze(&normalized));
+                    indexed.push(path_str);
+                }
+                Err(err) => {
+                    eprintln!(
+                        "Warning: Skipped unreadable document {}, Reason: {}",
+                        path_buf.display(),
+                        err
+                    );
+                }
+            }
         }
 
         Ok(indexed)

@@ -99,7 +99,11 @@ impl <'a> SearchEngine<'a> {
 
         let mut results: Vec<SearchResult> = doc_scores
             .into_iter()
-            .map(|(doc_id, score)| SearchResult { doc_id: doc_id as u32, score })
+            .map(|(doc_id, score)| SearchResult {
+                doc_id: doc_id as u32,
+                score,
+                source_id: self.index.document_registry.get(&doc_id).cloned(),
+            })
             .collect();
 
         results.sort_by(|a, b| b.score.total_cmp(&a.score));

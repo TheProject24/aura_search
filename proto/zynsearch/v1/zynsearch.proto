@@ -51,6 +51,9 @@ message SearchResult {
   repeated string matched_terms = 6;
   map<string, string> metadata = 7;
   string explanation = 8;
+  uint32 rank = 9;
+  string filename = 10;
+  uint64 doc_id = 11;
 }
 
 message SearchStats {
