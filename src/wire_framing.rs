@@ -1,4 +1,4 @@
-use std::io::{Error, ErrorKind::{self, InvalidData}, Read, Write};
+use std::io::{Error, ErrorKind::InvalidData, Read, Write};
 
 const MAX_PAYLOAD_SIZE: u32 = 16 * 1024 * 1024;
 
@@ -64,6 +64,6 @@ mod tests {
         assert_eq!(received_one, b"HELLO");
         assert_eq!(received_two, b"CAT");
 
-        println!("Successfully sent and received framed pacets without mixing!");
+        println!("Successfully sent and received framed packets without mixing!");
     }
 }

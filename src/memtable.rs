@@ -45,9 +45,7 @@ impl MemTable {
 
 #[cfg(test)]
 mod tests {
-    use crate::memtable;
-
-use super::*;
+    use super::*;
     use std::sync::Arc;
     use std::thread;
 
@@ -84,4 +82,3 @@ use super::*;
         assert_eq!(sorted_data[2].0, 30);
     }
 }
-

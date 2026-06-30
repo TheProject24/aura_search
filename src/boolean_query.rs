@@ -45,12 +45,7 @@ impl BooleanQuery {
             }
         }
 
-        let mut final_results = HashSet::new();
-        if let Some(must) = must_bucket {
-            final_results = must;
-        } else {
-            final_results = should_bucket;
-        }
+        let mut final_results = if let Some(must) = must_bucket { must } else { should_bucket };
 
         for forbidden_doc in must_not_bucket {
             final_results.remove(&forbidden_doc);

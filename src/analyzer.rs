@@ -32,31 +32,4 @@ impl TextAnalyzer {
             .map(|token| self.stemmer.stem(token).into_owned())
             .collect()
     }
-
-
-
-    fn apply_heuristic_stemming(&self, word: &str) -> String {
-        if let Some(root) = word.strip_suffix("ing") {
-            if root.len() >= 2 { return root.to_string(); }
-        }
-
-        if let Some(root) = word.strip_suffix("ed") {
-            if root.len() >= 2 { return root.to_string(); }
-        }
-
-        if let Some(root) = word.strip_suffix("ness") {
-            if root.len() >= 2 { return root.to_string(); }
-        }
-
-        if let Some(root) = word.strip_suffix("s") {
-            if !word.ends_with("ss") {
-                if let Some(inner_root) = root.strip_suffix("e") {
-                    if inner_root.len() >= 2 { return inner_root.to_string(); };
-                }
-                return root.to_string();
-            }
-        }
-
-        word.to_string()
-    }
 }

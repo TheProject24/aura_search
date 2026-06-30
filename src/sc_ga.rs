@@ -1,6 +1,5 @@
 use std::sync::mpsc;
 use std::thread;
-use std::cmp::Ordering;
 
 
 
@@ -19,10 +18,13 @@ impl ShardNode {
     pub fn local_search(&self, query: &str, limit: usize) -> Vec<SearchResult> {
         println!("Shard {} is searching for '{}' . . .", self.id, query);
 
-        vec![
+        let mut results = vec![
             SearchResult { doc_id: (self.id * 100 + 1) as u32, score: 10.0 + self.id as f32 },
             SearchResult { doc_id: (self.id * 100 + 2) as u32, score: 5.0 + self.id as f32 },
-        ]
+        ];
+
+        results.truncate(limit);
+        results
     }
 }
 
@@ -76,7 +78,7 @@ mod tests {
         let final_results = coordinator.execute_dist_search("fast car", top_k_limit);
         assert_eq!(final_results.len(), 3);
 
-        println!("\n=== FINAL GOOGLE PAGE 1 ===");
+        println!("\n=== FINAL PAGE 1 ===");
         for (index, result) in final_results.iter().enumerate() {
             println!("Rank {} | Doc ID: {} | Score: {}", index + 1, result.doc_id, result.score);
         }
