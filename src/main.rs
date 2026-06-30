@@ -15,6 +15,7 @@ mod positional_queries;
 mod wire_framing;
 mod multi_protocol;
 mod sharding;
+mod sc_ga;
 mod multi_reader;
 mod dictionary;
 mod merge_policy;

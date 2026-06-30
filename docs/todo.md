@@ -59,9 +59,9 @@ To handle production traffic at scale, the single node should support network pr
 //TODO!
 - [x] Design a length-prefixed binary wire framing: prepend a 4-byte big-endian length header to outgoing socket operations to isolate TCP data packages cleanly.
 //TODO!
-- [ ] Expose a multi-protocol socket API: let clients toggle execution parameters via raw text strings, JSON requests, or binary payloads.
+- [x] Expose a multi-protocol socket API: let clients toggle execution parameters via raw text strings, JSON requests, or binary payloads.
 //TODO!
-- [ ] Implement data partitioning (sharding): distribute document indices across independent cluster instances by hashing incoming source ID values.
+- [x] Implement data partitioning (sharding): distribute document indices across independent cluster instances by hashing incoming source ID values.
 //TODO!
 - [ ] Construct a scatter-gather query coordinator: route incoming queries across multiple search nodes simultaneously and combine the results into a unified sorted response list.
 
