@@ -10,6 +10,8 @@ mod segment;
 mod boolean_query;
 mod collection_stats;
 mod bm25;
+mod top_k;
+mod positional_queries;
 mod multi_reader;
 mod dictionary;
 mod merge_policy;

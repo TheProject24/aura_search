@@ -46,11 +46,11 @@ Speed means little if the first returned result is irrelevant. A statistical ran
 //TODO!
 - [x] Add in-memory collection statistics: maintain real-time tracking metrics such as total document counts and average document length.
 //TODO!
-- [ ] Build a native BM25 scorer module: calculate document weights dynamically using term frequency and document-length normalization.
+- [x] Build a native BM25 scorer module: calculate document weights dynamically using term frequency and document-length normalization.
 //TODO!
-- [ ] Implement bounded min-heaps: stream document IDs through a small priority queue to extract only the top `K` results instead of sorting everything.
+- [x] Implement bounded min-heaps: stream document IDs through a small priority queue to extract only the top `K` results instead of sorting everything.
 //TODO!
-- [ ] Support positional indexing: store positional byte offsets inside posting payloads to allow exact matching for phrase queries.
+- [x] Support positional indexing: store positional byte offsets inside posting payloads to allow exact matching for phrase queries.
 
 ## Phase 5: Network Protocols & Cluster Sharding
 
