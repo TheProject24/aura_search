@@ -30,6 +30,7 @@ impl <'a> SearchEngine<'a> {
                 let current_token_docs: HashSet<usize> = posting_list
                     .iter()
                     .map(|p| p.document_id)
+                    .filter(|id| !self.index.deleted_documents.contains(id))
                     .collect();
 
                 if is_first_token {
@@ -48,6 +49,9 @@ impl <'a> SearchEngine<'a> {
 
         let mut final_results = Vec::new();
         for doc_id in matching_doc_ids {
+            if self.index.deleted_documents.contains(&doc_id) {
+                continue;
+            }
             if let Some(file_path) = self.index.document_registry.get(&doc_id) {
                 final_results.push(file_path.clone());
             }
@@ -80,6 +84,9 @@ impl <'a> SearchEngine<'a> {
             let idf = bm25.calculate_idf(total_docs, posting_list.len() as u64);
 
             for posting in posting_list {
+                if self.index.deleted_documents.contains(&posting.document_id) {
+                    continue;
+                }
                 if posting.document_id % shard_count != shard_id {
                     continue;
                 }

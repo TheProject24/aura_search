@@ -21,7 +21,13 @@
     "db_path": "index.bin"
   },
   "distribution": {
-    "channels": ["tcp"]
+    "channels": [
+      "tcp"
+    ]
+  },
+  "cleanup": {
+    "enable_periodic_cleanup": true,
+    "period_seconds": 60
   },
   "env_path": null,
   "config_path": "zynsearch.config.json"

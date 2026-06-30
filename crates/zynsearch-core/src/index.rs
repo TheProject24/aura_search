@@ -1,6 +1,4 @@
-// index.rs
-
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone)]
 pub struct Posting {
@@ -11,12 +9,18 @@ pub struct Posting {
 pub struct InvertedIndex {
     pub index: HashMap<String, Vec<Posting>>,
     pub document_registry: HashMap<usize, String>,
+    pub deleted_documents: HashSet<usize>,
     next_document_id: usize,
 }
 
 impl InvertedIndex {
     pub fn new() -> Self {
-        InvertedIndex { index: HashMap::new(), document_registry: HashMap::new(), next_document_id: 0 }
+        InvertedIndex {
+            index: HashMap::new(),
+            document_registry: HashMap::new(),
+            deleted_documents: HashSet::new(),
+            next_document_id: 0,
+        }
     }
 
     pub fn register_document(&mut self, path: &str) -> usize {
@@ -43,6 +47,15 @@ impl InvertedIndex {
                 .entry(term)
                 .or_insert_with(Vec::new)
                 .push(posting);
+        }
+    }
+
+    pub fn delete_document(&mut self, doc_id: usize) {
+        self.deleted_documents.insert(doc_id);
+        self.document_registry.remove(&doc_id);
+
+        for postings in self.index.values_mut() {
+            postings.retain(|p| p.document_id != doc_id);
         }
     }
 }

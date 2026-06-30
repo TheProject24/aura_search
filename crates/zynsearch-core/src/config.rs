@@ -160,12 +160,29 @@ impl Default for ManifestConfig {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
+pub struct CleanupConfig {
+    pub enable_periodic_cleanup: bool,
+    pub period_seconds: u64,
+}
+
+impl Default for CleanupConfig {
+    fn default() -> Self {
+        Self {
+            enable_periodic_cleanup: true,
+            period_seconds: 60,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
 pub struct AppConfig {
     pub manifest: ManifestConfig,
     pub runtime: RuntimeConfig,
     pub ingestion: IngestionConfig,
     pub storage: StorageConfig,
     pub distribution: DistributionConfig,
+    pub cleanup: CleanupConfig,
     pub env_path: Option<String>,
     pub config_path: String,
 }
@@ -178,6 +195,7 @@ impl Default for AppConfig {
             ingestion: IngestionConfig::default(),
             storage: StorageConfig::default(),
             distribution: DistributionConfig::default(),
+            cleanup: CleanupConfig::default(),
             env_path: None,
             config_path: "zynsearch.config.json".to_string(),
         }
@@ -240,6 +258,14 @@ pub struct CliArgs {
     /// Optional one-shot query.
     #[arg(long, env = "ZYN_QUERY")]
     pub query: Option<String>,
+
+    /// Enable periodic cleanup of missing/deleted files from the index.
+    #[arg(long, env = "ZYN_CLEANUP_ENABLE")]
+    pub enable_periodic_cleanup: Option<bool>,
+
+    /// How frequently (seconds) to run periodic cleanup of missing/deleted files.
+    #[arg(long, env = "ZYN_CLEANUP_INTERVAL")]
+    pub cleanup_interval_seconds: Option<u64>,
 }
 
 pub fn load_app_config() -> Result<AppConfig, Box<dyn std::error::Error>> {
@@ -332,6 +358,16 @@ fn apply_env_file_overrides(config: &mut AppConfig) -> Result<(), Box<dyn std::e
             }
             "ZYN_S3_BUCKET" => config.ingestion.s3_bucket = Some(value.to_string()),
             "ZYN_S3_PREFIX" => config.ingestion.s3_prefix = Some(value.to_string()),
+            "ZYN_CLEANUP_ENABLE" => {
+                if let Ok(enable) = value.parse::<bool>() {
+                    config.cleanup.enable_periodic_cleanup = enable;
+                }
+            }
+            "ZYN_CLEANUP_INTERVAL" => {
+                if let Ok(interval) = value.parse::<u64>() {
+                    config.cleanup.period_seconds = interval;
+                }
+            }
             _ => {}
         }
     }
@@ -374,5 +410,11 @@ fn apply_cli_overrides(config: &mut AppConfig, cli: &CliArgs, config_path: Strin
     }
     if let Some(query) = cli.query.clone() {
         config.runtime.query = Some(query);
+    }
+    if let Some(enable) = cli.enable_periodic_cleanup {
+        config.cleanup.enable_periodic_cleanup = enable;
+    }
+    if let Some(interval) = cli.cleanup_interval_seconds {
+        config.cleanup.period_seconds = interval;
     }
 }

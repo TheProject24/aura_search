@@ -1,4 +1,5 @@
 use std::path::Path;
+use std::time::Duration;
 use tokio::net::TcpListener;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
@@ -24,6 +25,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let engine_core = SearchEngineCore::new();
     let shared_engine = std::sync::Arc::new(engine_core);
     let coordinator = QueryCoordinator::new(shared_engine.clone(), 4);
+    if config.cleanup.enable_periodic_cleanup {
+        shared_engine.start_periodic_cleanup(Duration::from_secs(config.cleanup.period_seconds.max(1)));
+    }
 
     if Path::new(&config.storage.db_path).exists() {
         println!("[BOOT] Hydrating database from: {}", config.storage.db_path);

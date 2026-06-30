@@ -1,6 +1,7 @@
 pub mod crawler;
 pub mod parser;
 pub mod analyzer;
+pub mod api;
 pub mod index;
 pub mod searcher;
 pub mod engine;
@@ -29,3 +30,9 @@ pub mod config;
 pub mod ingestion;
 pub mod query_pipeline;
 pub mod document_ingest;
+
+pub use api::{create_engine, ZynSearch, ZynSearchBuilder};
+pub use ingestion::{IngestionSource, IngestionDocument, IngestionSourceKind};
+pub use top_k::SearchResult;
+pub use query_pipeline::QueryCoordinator;
+pub use multi_protocol::ZynQuery;
