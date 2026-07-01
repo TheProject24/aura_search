@@ -75,17 +75,48 @@ pub fn parse_query(payload: &[u8]) -> Result<ZynQuery, String> {
     ProtocolParser::parse_incoming_payload(payload)
 }
 
+pub fn display_filename(source_id: Option<&str>) -> String {
+    let Some(source_id) = source_id else {
+        return String::new();
+    };
+
+    let path = Path::new(source_id);
+    let Some(filename) = path.file_name().and_then(|name| name.to_str()) else {
+        return String::new();
+    };
+
+    let Some(parent) = path.parent() else {
+        return format!("./{filename}");
+    };
+
+    let parent_str = parent.to_string_lossy();
+    if parent_str.is_empty() || parent_str == "." {
+        return format!("./{filename}");
+    }
+
+    let mut relative = parent_str.trim_start_matches("./").trim_end_matches('/').to_string();
+    if relative.is_empty() {
+        format!("./{filename}")
+    } else {
+        relative.push('/');
+        relative.push_str(filename);
+        relative
+    }
+}
+
 pub fn format_results(results: &[SearchResult], format: OutputFormat) -> Vec<u8> {
     match format {
         OutputFormat::Text => {
             let mut text = format!("Found {} matches:\n", results.len());
             for (index, result) in results.iter().enumerate() {
-                let label = result
-                    .source_id
-                    .as_deref()
-                    .and_then(|source_id| Path::new(source_id).file_name().and_then(|name| name.to_str()))
-                    .map(|name| name.to_string())
-                    .unwrap_or_else(|| format!("doc {}", result.doc_id));
+                let label = {
+                    let display = display_filename(result.source_id.as_deref());
+                    if display.is_empty() {
+                        format!("doc {}", result.doc_id)
+                    } else {
+                        display
+                    }
+                };
                 text.push_str(&format!(
                     " -> rank {} | {} | score {:.3} | doc_id {}\n",
                     index + 1,
@@ -101,12 +132,7 @@ pub fn format_results(results: &[SearchResult], format: OutputFormat) -> Vec<u8>
                 .iter()
                 .enumerate()
                 .map(|(index, result)| {
-                    let filename = result
-                        .source_id
-                        .as_deref()
-                        .and_then(|source_id| Path::new(source_id).file_name().and_then(|name| name.to_str()))
-                        .unwrap_or("")
-                        .to_string();
+                    let filename = display_filename(result.source_id.as_deref());
 
                     serde_json::json!({
                         "rank": index + 1,

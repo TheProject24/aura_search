@@ -15,7 +15,7 @@ use zynsearch_core::engine::SearchEngineCore;
 use zynsearch_core::storage::StorageManager;
 use zynsearch_core::config::{load_app_config, AppConfig, IngestionMode, ProtocolMode};
 use zynsearch_core::ingestion::{ingest_and_persist, LocalDirIngestionSource, S3IngestionSource};
-use zynsearch_core::query_pipeline::{format_results, parse_query, QueryCoordinator};
+use zynsearch_core::query_pipeline::{display_filename, format_results, parse_query, QueryCoordinator};
 use zynsearch_core::multi_protocol::ZynQuery;
 use zynsearch_core::top_k::SearchResult as CoreSearchResult;
 mod http;
@@ -342,11 +342,14 @@ impl ZynGrpcService {
         let doc_id = result.doc_id as usize;
         let metadata = index.document_metadata.get(&doc_id)?;
         let source_kind = core_source_kind_to_proto(metadata.source_kind);
-        let filename = Path::new(&metadata.source_id)
-            .file_name()
-            .and_then(|name| name.to_str())
-            .unwrap_or(&metadata.source_id)
-            .to_string();
+        let filename = {
+            let display = display_filename(Some(&metadata.source_id));
+            if display.is_empty() {
+                metadata.source_id.clone()
+            } else {
+                display
+            }
+        };
 
         Some(SearchResult {
             document_id: result.doc_id as u64,

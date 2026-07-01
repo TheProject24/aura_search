@@ -1,5 +1,5 @@
 use std::net::SocketAddr;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::Arc;
 
 use axum::extract::{Path as AxumPath, Query, State};
@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 use zynsearch_core::engine::SearchEngineCore;
 use zynsearch_core::index::DocumentSourceKind;
 use zynsearch_core::multi_protocol::ZynQuery;
-use zynsearch_core::query_pipeline::QueryCoordinator;
+use zynsearch_core::query_pipeline::{display_filename, QueryCoordinator};
 use zynsearch_core::storage::StorageManager;
 use zynsearch_core::top_k::SearchResult as CoreSearchResult;
 
@@ -339,18 +339,21 @@ fn convert_search_result(
     let doc_id = result.doc_id as usize;
     let metadata = index.document_metadata.get(&doc_id)?;
 
-    let title = Path::new(&metadata.source_id)
-        .file_name()
-        .and_then(|name| name.to_str())
-        .unwrap_or(&metadata.source_id)
-        .to_string();
+    let filename = {
+        let display = display_filename(Some(&metadata.source_id));
+        if display.is_empty() {
+            metadata.source_id.clone()
+        } else {
+            display
+        }
+    };
 
     Some(SearchResultBody {
         rank: (rank + 1) as u32,
         document_id: doc_id as u64,
         doc_id: doc_id as u64,
         source_id: metadata.source_id.clone(),
-        filename: title,
+        filename,
         score: result.score,
         explanation: explain.then(|| format!("bm25_score={}", result.score)),
     })
